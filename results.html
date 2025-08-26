@@ -127,8 +127,62 @@
     <div class="nav">
         <a href="index.html">Go to Dashboard</a>
     </div>
-
     <script>
+        function renderResults() {
+            const scores = JSON.parse(localStorage.getItem('scores')) || Array(20).fill(0);
+            const names = JSON.parse(localStorage.getItem('names')) || Array.from({ length: 20 }, (_, i) => `Team ${i + 1}`);
+
+            // Sort for ranks
+            const ranked = scores.map((s, i) => ({ team: i + 1, name: names[i], score: s }))
+                .sort((a, b) => b.score - a.score || a.team - b.team);
+
+            if (ranked.length > 0) {
+                ranked[0].rank = 1;
+                for (let i = 1; i < ranked.length; i++) {
+                    ranked[i].rank = ranked[i].score === ranked[i - 1].score ? ranked[i - 1].rank : i + 1;
+                }
+            }
+
+            // Top three (skip score=0)
+            const topThreeContainer = document.getElementById('topThree');
+            topThreeContainer.innerHTML = '';
+            ranked.filter(t => t.rank <= 3 && t.score > 0).forEach(team => {
+                const card = document.createElement('div');
+                card.className = 'top-card';
+                let placeLabel = "", medal = "";
+                if (team.rank === 1) { card.classList.add('gold'); placeLabel = "1st Place"; medal = "🥇"; }
+                else if (team.rank === 2) { card.classList.add('silver'); placeLabel = "2nd Place"; medal = "🥈"; }
+                else if (team.rank === 3) { card.classList.add('bronze'); placeLabel = "3rd Place"; medal = "🥉"; }
+
+                card.innerHTML = `
+              <span class="medal">${medal}</span>
+              <h2>${placeLabel} - ${team.name}</h2>
+              <p>${team.score} pts</p>`;
+                topThreeContainer.appendChild(card);
+            });
+
+            // All teams grid (fixed 5×4)
+            const allTeamsContainer = document.getElementById('allTeams');
+            allTeamsContainer.innerHTML = '';
+            scores.forEach((score, i) => {
+                const card = document.createElement('div');
+                card.className = 'team-card';
+                card.innerHTML = `
+              <span class="team-name">${names[i]}</span>
+              <span class="score">${score}</span>
+            `;
+                allTeamsContainer.appendChild(card);
+            });
+        }
+
+        renderResults();
+        setInterval(renderResults, 2000);
+    </script>
+
+
+
+
+    <!-- <script>
         function renderResults() {
             const scores = JSON.parse(localStorage.getItem('scores')) || Array(20).fill(0);
 
@@ -177,7 +231,7 @@
 
         renderResults();
         setInterval(renderResults, 2000);
-    </script>
+    </script> -->
 </body>
 
 </html>
