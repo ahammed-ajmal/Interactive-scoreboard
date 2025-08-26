@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Points Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #333;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 5px 0 15px 0;
+        }
+
+        .top-three {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .top-card {
+            background: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+            max-width: 200px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid transparent;
+        }
+
+        .top-card h2 {
+            margin: 0;
+            font-size: 1em;
+        }
+
+        .top-card p {
+            margin: 5px 0 0;
+            font-weight: bold;
+        }
+
+        .gold {
+            border-color: #ffd700;
+        }
+
+        .silver {
+            border-color: #c0c0c0;
+        }
+
+        .bronze {
+            border-color: #cd7f32;
+        }
+
+        .medal {
+            font-size: 1.5em;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* All teams grid fills remaining space */
+        .all-teams {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .team-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 5px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .team-card .team-name {
+            font-weight: bold;
+            font-size: 1em;
+        }
+
+        .team-card .score {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .nav {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .nav a {
+            text-decoration: none;
+            padding: 8px 12px;
+            background: #2196F3;
+            color: white;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🏆 Team Leaderboard</h1>
+
+    <div class="top-three" id="topThree"></div>
+
+    <div class="all-teams" id="allTeams"></div>
+
+    <div class="nav">
+        <a href="index.html">Go to Dashboard</a>
+    </div>
+
+    <script>
+        function renderResults() {
+            const scores = JSON.parse(localStorage.getItem('scores')) || Array(20).fill(0);
+
+            // Sort for ranks
+            const ranked = scores.map((s, i) => ({ team: i + 1, score: s }))
+                .sort((a, b) => b.score - a.score || a.team - b.team);
+
+            if (ranked.length > 0) {
+                ranked[0].rank = 1;
+                for (let i = 1; i < ranked.length; i++) {
+                    ranked[i].rank = ranked[i].score === ranked[i - 1].score ? ranked[i - 1].rank : i + 1;
+                }
+            }
+
+            // Top three (skip score=0)
+            const topThreeContainer = document.getElementById('topThree');
+            topThreeContainer.innerHTML = '';
+            ranked.filter(t => t.rank <= 3 && t.score > 0).forEach(team => {
+                const card = document.createElement('div');
+                card.className = 'top-card';
+                let placeLabel = "", medal = "";
+                if (team.rank === 1) { card.classList.add('gold'); placeLabel = "1st Place"; medal = "🥇"; }
+                else if (team.rank === 2) { card.classList.add('silver'); placeLabel = "2nd Place"; medal = "🥈"; }
+                else if (team.rank === 3) { card.classList.add('bronze'); placeLabel = "3rd Place"; medal = "🥉"; }
+
+                card.innerHTML = `
+          <span class="medal">${medal}</span>
+          <h2>${placeLabel} - Team ${team.team}</h2>
+          <p>${team.score} pts</p>`;
+                topThreeContainer.appendChild(card);
+            });
+
+            // All teams grid (fixed 5×4)
+            const allTeamsContainer = document.getElementById('allTeams');
+            allTeamsContainer.innerHTML = '';
+            scores.forEach((score, i) => {
+                const card = document.createElement('div');
+                card.className = 'team-card';
+                card.innerHTML = `
+          <span class="team-name">Team ${i + 1}</span>
+          <span class="score">${score}</span>
+        `;
+                allTeamsContainer.appendChild(card);
+            });
+        }
+
+        renderResults();
+        setInterval(renderResults, 2000);
+    </script>
+</body>
+
+</html>
