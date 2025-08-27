@@ -66,3 +66,30 @@ Through several iterations, the final product became more user-friendly and visu
 1. Clone the repository:  
    ```bash
    git clone https://github.com/ahammed-ajmal/Interactive-scoreboard.git
+   ```
+2. Navigate to the project folder:
+   ```bash
+   cd Interactive-scoreboard
+   ```
+3. Open `index.html` in any modern web browser.
+
+   * No extra dependencies required.
+
+Alternatively, you can try the live version here:
+👉 [Live Demo](https://ahammed-ajmal.github.io/Interactive-scoreboard/)
+
+## Image
+![Scoreboard Preview](Scoreboard.png)
+
+
+
+
+
+
+
+
+
+
+
+
+   
